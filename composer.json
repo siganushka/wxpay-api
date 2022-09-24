@@ -1,0 +1,36 @@
+{
+    "name": "siganushka/wxpay-api",
+    "description": "Wxpay API.",
+    "keywords": ["wechat", "weixin", "wxpay-api"],
+    "homepage": "https://github.com/siganushka/wxpay-api",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "siganushka",
+            "email": "siganushka@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "siganushka/api-client": "dev-main",
+        "symfony/serializer": "^5.4|^6.0"
+    },
+    "require-dev": {
+        "symfony/error-handler": "^5.4|^6.0",
+        "symfony/phpunit-bridge": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Siganushka\\ApiClient\\Wxpay\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Siganushka\\ApiClient\\Wxpay\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
