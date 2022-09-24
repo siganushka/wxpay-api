@@ -12,27 +12,25 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Encoder\DecoderInterface;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class RefundTest extends TestCase
 {
+    protected ?SerializerInterface $serializer = null;
     protected ?Refund $request = null;
-    protected ?EncoderInterface $encoder = null;
-    protected ?DecoderInterface $decoder = null;
 
     protected function setUp(): void
     {
-        $this->encoder = new XmlEncoder();
-        $this->decoder = new XmlEncoder();
-        $this->request = new Refund(null, $this->encoder, $this->decoder);
+        $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
+        $this->request = new Refund(null, $this->serializer);
     }
 
     protected function tearDown(): void
     {
-        $this->encoder = null;
-        $this->decoder = null;
+        $this->serializer = null;
         $this->request = null;
     }
 
@@ -142,7 +140,7 @@ class RefundTest extends TestCase
         static::assertSame($requestOptions->toArray()['local_cert'], $configuration['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $configuration['mch_client_key']);
 
-        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -173,7 +171,7 @@ class RefundTest extends TestCase
             'notify_url' => 'test_notify_url',
         ]);
 
-        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -222,7 +220,7 @@ class RefundTest extends TestCase
             'result_code' => 'SUCCESS',
         ];
 
-        $body = $this->encoder->encode($data, 'xml');
+        $body = $this->serializer->serialize($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -256,7 +254,7 @@ class RefundTest extends TestCase
             'return_msg' => 'test_return_msg',
         ];
 
-        $body = $this->encoder->encode($data, 'xml');
+        $body = $this->serializer->serialize($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -289,7 +287,7 @@ class RefundTest extends TestCase
             'err_code_des' => 'test_err_code_des',
         ];
 
-        $body = $this->encoder->encode($data, 'xml');
+        $body = $this->serializer->serialize($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);

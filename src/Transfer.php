@@ -10,9 +10,10 @@ use Siganushka\ApiClient\RequestOptions;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Encoder\DecoderInterface;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -23,13 +24,11 @@ class Transfer extends AbstractRequest
 {
     public const URL = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers';
 
-    private EncoderInterface $encoder;
-    private DecoderInterface $decoder;
+    private SerializerInterface $serializer;
 
-    public function __construct(HttpClientInterface $httpClient = null, EncoderInterface $encoder = null, DecoderInterface $decoder = null)
+    public function __construct(HttpClientInterface $httpClient = null, SerializerInterface $serializer = null)
     {
-        $this->encoder = $encoder ?? new XmlEncoder();
-        $this->decoder = $decoder ?? new XmlEncoder();
+        $this->serializer = $serializer ?? new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
 
         parent::__construct($httpClient);
     }
@@ -142,7 +141,7 @@ class Transfer extends AbstractRequest
         $request
             ->setMethod('POST')
             ->setUrl(static::URL)
-            ->setBody($this->encoder->encode($body, 'xml'))
+            ->setBody($this->serializer->serialize($body, 'xml'))
             ->setLocalCert($options['mch_client_cert'])
             ->setLocalPk($options['mch_client_key'])
         ;
@@ -150,7 +149,7 @@ class Transfer extends AbstractRequest
 
     protected function parseResponse(ResponseInterface $response): array
     {
-        $result = $this->decoder->decode($response->getContent(), 'xml');
+        $result = $this->serializer->deserialize($response->getContent(), 'string[]', 'xml');
 
         $returnCode = (string) ($result['return_code'] ?? '');
         $resultCode = (string) ($result['result_code'] ?? '');
