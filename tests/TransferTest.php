@@ -12,21 +12,27 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Serializer;
 
 class TransferTest extends TestCase
 {
     protected ?Transfer $request = null;
+    protected ?EncoderInterface $encoder = null;
+    protected ?DecoderInterface $decoder = null;
 
     protected function setUp(): void
     {
-        $this->request = new Transfer();
+        $this->encoder = new XmlEncoder();
+        $this->decoder = new XmlEncoder();
+        $this->request = new Transfer(null, $this->encoder, $this->decoder);
     }
 
     protected function tearDown(): void
     {
+        $this->encoder = null;
+        $this->decoder = null;
         $this->request = null;
     }
 
@@ -144,7 +150,7 @@ class TransferTest extends TestCase
         static::assertSame($requestOptions->toArray()['local_cert'], $options['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $options['mch_client_key']);
 
-        $body = $this->createSerializer()->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -176,7 +182,7 @@ class TransferTest extends TestCase
             'finder_template_id' => 'test_finder_template_id',
         ]);
 
-        $body = $this->createSerializer()->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -227,7 +233,7 @@ class TransferTest extends TestCase
             'result_code' => 'SUCCESS',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -262,7 +268,7 @@ class TransferTest extends TestCase
             'return_msg' => 'test_return_msg',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -296,7 +302,7 @@ class TransferTest extends TestCase
             'err_code_des' => 'test_err_code_des',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -353,10 +359,5 @@ class TransferTest extends TestCase
             'amount' => 1,
             'desc' => 'test_desc',
         ]);
-    }
-
-    private function createSerializer(): Serializer
-    {
-        return new Serializer([], [new XmlEncoder(), new JsonEncoder()]);
     }
 }

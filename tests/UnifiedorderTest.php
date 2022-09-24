@@ -12,21 +12,27 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Serializer;
 
 class UnifiedorderTest extends TestCase
 {
     protected ?Unifiedorder $request = null;
+    protected ?EncoderInterface $encoder = null;
+    protected ?DecoderInterface $decoder = null;
 
     protected function setUp(): void
     {
-        $this->request = new Unifiedorder();
+        $this->encoder = new XmlEncoder();
+        $this->decoder = new XmlEncoder();
+        $this->request = new Unifiedorder(null, $this->encoder, $this->decoder);
     }
 
     protected function tearDown(): void
     {
+        $this->encoder = null;
+        $this->decoder = null;
         $this->request = null;
     }
 
@@ -172,7 +178,7 @@ class UnifiedorderTest extends TestCase
         static::assertSame('POST', $requestOptions->getMethod());
         static::assertSame(Unifiedorder::URL, $requestOptions->getUrl());
 
-        $body = $this->createSerializer()->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -219,7 +225,7 @@ class UnifiedorderTest extends TestCase
 
         $requestOptions = $this->request->build($options);
 
-        $body = $this->createSerializer()->decode($requestOptions->toArray()['body'], 'xml');
+        $body = $this->decoder->decode($requestOptions->toArray()['body'], 'xml');
 
         $signature = $body['sign'];
         unset($body['sign']);
@@ -276,7 +282,7 @@ class UnifiedorderTest extends TestCase
             'result_code' => 'SUCCESS',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -308,7 +314,7 @@ class UnifiedorderTest extends TestCase
             'return_msg' => 'test_return_msg',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -339,7 +345,7 @@ class UnifiedorderTest extends TestCase
             'err_code_des' => 'test_err_code_des',
         ];
 
-        $body = $this->createSerializer()->encode($data, 'xml');
+        $body = $this->encoder->encode($data, 'xml');
 
         $mockResponse = new MockResponse($body);
         $client = new MockHttpClient($mockResponse);
@@ -396,10 +402,5 @@ class UnifiedorderTest extends TestCase
             'trade_type' => 'JSAPI',
             'openid' => 'test_openid',
         ]);
-    }
-
-    private function createSerializer(): Serializer
-    {
-        return new Serializer([], [new XmlEncoder(), new JsonEncoder()]);
     }
 }
