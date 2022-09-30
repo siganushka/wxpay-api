@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay;
+namespace Siganushka\ApiFactory\Wxpay;
 
-use Siganushka\ApiClient\AbstractConfiguration;
+use Siganushka\ApiFactory\AbstractConfiguration;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -20,7 +20,7 @@ class Configuration extends AbstractConfiguration
         OptionsUtils::mch_client_cert($resolver);
         OptionsUtils::mch_client_key($resolver);
 
-        foreach ($resolver->getDefinedOptions() as $option) {
+        foreach (['mch_client_cert', 'mch_client_key'] as $option) {
             $resolver->setDefault($option, null);
             $resolver->addAllowedTypes($option, 'null');
         }

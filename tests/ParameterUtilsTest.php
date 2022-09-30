@@ -2,43 +2,39 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Wxpay\ParameterUtils;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Siganushka\ApiFactory\Wxpay\ParameterUtils;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 
 class ParameterUtilsTest extends TestCase
 {
+    private ?SignatureUtils $signatureUtils = null;
     private ?ParameterUtils $parameterUtils = null;
 
     protected function setUp(): void
     {
-        $this->parameterUtils = ParameterUtils::create();
+        $this->signatureUtils = new SignatureUtils();
+        $this->parameterUtils = new ParameterUtils($this->signatureUtils);
     }
 
     protected function tearDown(): void
     {
+        $this->signatureUtils = null;
         $this->parameterUtils = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->parameterUtils->configure($resolver);
+        $options = [
+            'appid' => 'test_appid',
+            'mchid' => 'test_mchid',
+            'mchkey' => 'test_mchkey',
+            'prepay_id' => 'test_prepay_id',
+        ];
 
-        static::assertSame([
-            'appid',
-            'mchid',
-            'mchkey',
-            'sign_type',
-            'timestamp',
-            'noncestr',
-            'prepay_id',
-        ], $resolver->getDefinedOptions());
-
-        $resolved = $resolver->resolve(['appid' => 'test_appid', 'mchid' => 'test_mchid', 'mchkey' => 'test_mchkey', 'prepay_id' => 'test_prepay_id']);
+        $resolved = $this->parameterUtils->resolve($options);
         static::assertSame('test_appid', $resolved['appid']);
         static::assertSame('test_mchid', $resolved['mchid']);
         static::assertSame('test_mchkey', $resolved['mchkey']);
@@ -47,14 +43,10 @@ class ParameterUtilsTest extends TestCase
         static::assertArrayHasKey('noncestr', $resolved);
         static::assertSame('test_prepay_id', $resolved['prepay_id']);
 
-        $resolved = $resolver->resolve([
-            'appid' => 'test_appid',
-            'mchid' => 'test_mchid',
-            'mchkey' => 'test_mchkey',
+        $resolved = $this->parameterUtils->resolve($options + [
             'sign_type' => 'HMAC-SHA256',
             'timestamp' => 'test_timestamp',
             'noncestr' => 'test_noncestr',
-            'prepay_id' => 'test_prepay_id',
         ]);
 
         static::assertSame('test_appid', $resolved['appid']);
@@ -66,9 +58,16 @@ class ParameterUtilsTest extends TestCase
         static::assertSame('test_prepay_id', $resolved['prepay_id']);
     }
 
-    public function testGenerateJsapi(): void
+    public function testJsapiParameter(): void
     {
-        $parameter = $this->parameterUtils->jsapi(['appid' => 'test_appid', 'mchid' => 'test_mchid', 'mchkey' => 'test_mchkey', 'prepay_id' => 'test_prepay_id']);
+        $options = [
+            'appid' => 'test_appid',
+            'mchid' => 'test_mchid',
+            'mchkey' => 'test_mchkey',
+            'prepay_id' => 'test_prepay_id',
+        ];
+
+        $parameter = $this->parameterUtils->jsapi($options);
         static::assertSame('test_appid', $parameter['appId']);
         static::assertSame('prepay_id=test_prepay_id', $parameter['package']);
         static::assertSame('MD5', $parameter['signType']);
@@ -79,16 +78,22 @@ class ParameterUtilsTest extends TestCase
         $sign = $parameter['paySign'];
         unset($parameter['paySign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertTrue($signatureUtils->check($sign, [
-            'mchkey' => 'test_mchkey',
+        static::assertTrue($this->signatureUtils->verify($sign, [
+            'mchkey' => $options['mchkey'],
             'data' => $parameter,
         ]));
     }
 
-    public function testGenerateApp(): void
+    public function testAppParameter(): void
     {
-        $parameter = $this->parameterUtils->app(['appid' => 'test_appid', 'mchid' => 'test_mchid', 'mchkey' => 'test_mchkey', 'prepay_id' => 'test_prepay_id']);
+        $options = [
+            'appid' => 'test_appid',
+            'mchid' => 'test_mchid',
+            'mchkey' => 'test_mchkey',
+            'prepay_id' => 'test_prepay_id',
+        ];
+
+        $parameter = $this->parameterUtils->app($options);
         static::assertSame('test_appid', $parameter['appid']);
         static::assertSame('test_mchid', $parameter['partnerid']);
         static::assertSame('test_prepay_id', $parameter['prepayid']);
@@ -100,9 +105,8 @@ class ParameterUtilsTest extends TestCase
         $sign = $parameter['sign'];
         unset($parameter['sign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertTrue($signatureUtils->check($sign, [
-            'mchkey' => 'test_mchkey',
+        static::assertTrue($this->signatureUtils->verify($sign, [
+            'mchkey' => $options['mchkey'],
             'data' => $parameter,
         ]));
     }

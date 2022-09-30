@@ -2,30 +2,25 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiClient\Wxpay\ConfigurationOptions;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 
 require __DIR__.'/_autoload.php';
 
-$data = [
-    'return_code' => 'SUCCESS',
-    'return_msg' => 'OK',
-    'result_code' => 'SUCCESS',
-    'mch_id' => '1619665394',
-    'appid' => 'wx85bbb9f0e9460321',
-    'nonce_str' => 'pzBM7mKhwbuLzwHJ',
-    'trade_type' => 'JSAPI',
-];
+$signatureUtils = new SignatureUtils();
+$signatureUtils->extend(new ConfigurationExtension($configuration));
 
-$signatureUtils = SignatureUtils::create();
-$signatureUtils->extend(new ConfigurationOptions($configuration));
+$rawData = [
+    'foo' => 'bar',
+];
 
 $options = [
-    'data' => $data,
+    'data' => $rawData,
+    // 'sign_type' => 'HMAC-SHA256', // MD5/HMAC-SHA256
 ];
 
-// 生成签名
-$sign = $signatureUtils->generate($options);
+$signature = $signatureUtils->generate($options);
+dump('生成签名结果：', $signature);
 
-// 验证签名
-dd($sign, $signatureUtils->check($sign, $options));
+$iSsignatureValid = $signatureUtils->verify($signature, $options);
+dump('验证签名结果：', $iSsignatureValid);

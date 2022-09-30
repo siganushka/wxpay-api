@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Exception\ParseResponseException;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
-use Siganushka\ApiClient\Wxpay\Transfer;
+use Siganushka\ApiFactory\Exception\ParseResponseException;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Wxpay\Transfer;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -20,46 +19,25 @@ use Symfony\Component\Serializer\SerializerInterface;
 class TransferTest extends TestCase
 {
     protected ?SerializerInterface $serializer = null;
+    protected ?SignatureUtils $signatureUtils = null;
     protected ?Transfer $request = null;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
-        $this->request = new Transfer(null, $this->serializer);
+        $this->signatureUtils = new SignatureUtils();
+        $this->request = new Transfer(null, $this->serializer, $this->signatureUtils);
     }
 
     protected function tearDown(): void
     {
         $this->serializer = null;
+        $this->signatureUtils = null;
         $this->request = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->request->configure($resolver);
-
-        static::assertSame([
-            'appid',
-            'mchid',
-            'mchkey',
-            'mch_client_cert',
-            'mch_client_key',
-            'sign_type',
-            'noncestr',
-            'client_ip',
-            'device_info',
-            'partner_trade_no',
-            'openid',
-            'check_name',
-            're_user_name',
-            'amount',
-            'desc',
-            'scene',
-            'brand_id',
-            'finder_template_id',
-        ], $resolver->getDefinedOptions());
-
         $options = [
             'appid' => 'test_appid',
             'mchid' => 'test_mchid',
@@ -73,7 +51,12 @@ class TransferTest extends TestCase
             'desc' => 'test_desc',
         ];
 
-        static::assertSame([
+        static::assertEquals([
+            'appid' => $options['appid'],
+            'mchid' => $options['mchid'],
+            'mchkey' => $options['mchkey'],
+            'mch_client_cert' => $options['mch_client_cert'],
+            'mch_client_key' => $options['mch_client_key'],
             'sign_type' => 'MD5',
             'noncestr' => $options['noncestr'],
             'client_ip' => '0.0.0.0',
@@ -83,18 +66,18 @@ class TransferTest extends TestCase
             'scene' => null,
             'brand_id' => null,
             'finder_template_id' => null,
+            'partner_trade_no' => $options['partner_trade_no'],
+            'openid' => $options['openid'],
+            'amount' => $options['amount'],
+            'desc' => $options['desc'],
+        ], $this->request->resolve($options));
+
+        static::assertEquals([
             'appid' => $options['appid'],
             'mchid' => $options['mchid'],
             'mchkey' => $options['mchkey'],
             'mch_client_cert' => $options['mch_client_cert'],
             'mch_client_key' => $options['mch_client_key'],
-            'partner_trade_no' => $options['partner_trade_no'],
-            'openid' => $options['openid'],
-            'amount' => $options['amount'],
-            'desc' => $options['desc'],
-        ], $resolver->resolve($options));
-
-        static::assertSame([
             'sign_type' => 'HMAC-SHA256',
             'noncestr' => $options['noncestr'],
             'client_ip' => '127.0.0.1',
@@ -104,16 +87,11 @@ class TransferTest extends TestCase
             'scene' => 'test_scene',
             'brand_id' => 16,
             'finder_template_id' => 'test_finder_template_id',
-            'appid' => $options['appid'],
-            'mchid' => $options['mchid'],
-            'mchkey' => $options['mchkey'],
-            'mch_client_cert' => $options['mch_client_cert'],
-            'mch_client_key' => $options['mch_client_key'],
             'partner_trade_no' => $options['partner_trade_no'],
             'openid' => $options['openid'],
             'amount' => $options['amount'],
             'desc' => $options['desc'],
-        ], $resolver->resolve($options + [
+        ], $this->request->resolve($options + [
             'sign_type' => 'HMAC-SHA256',
             'client_ip' => '127.0.0.1',
             'device_info' => 'test_device_info',
@@ -153,13 +131,12 @@ class TransferTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'mch_appid' => $options['appid'],
             'mchid' => $options['mchid'],
             'nonce_str' => $options['noncestr'],
@@ -185,13 +162,13 @@ class TransferTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'sign_type' => 'HMAC-SHA256',
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'mch_appid' => $options['appid'],
             'mchid' => $options['mchid'],
             'device_info' => 'test_device_info',

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiClient\Wxpay\ConfigurationOptions;
-use Siganushka\ApiClient\Wxpay\Unifiedorder;
+use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
+use Siganushka\ApiFactory\Wxpay\Unifiedorder;
 
 require __DIR__.'/_autoload.php';
 
@@ -12,12 +12,11 @@ $options = [
     'notify_url' => 'http://localhost',
     'out_trade_no' => uniqid(),
     'total_fee' => 1,
-    'trade_type' => 'JSAPI',
-    'openid' => 'oaAle41wmUsogcsdUKZF9HJOPf5Q',
+    'trade_type' => 'APP',
 ];
 
 $request = new Unifiedorder();
-$request->extend(new ConfigurationOptions($configuration));
+$request->extend(new ConfigurationExtension($configuration));
 
 $result = $request->send($options);
-dd($result);
+dump('统一下单结果：', $result);

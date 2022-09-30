@@ -2,35 +2,28 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay;
+namespace Siganushka\ApiFactory\Wxpay;
 
-use Siganushka\ApiClient\OptionsConfigurableInterface;
-use Siganushka\ApiClient\OptionsConfigurableTrait;
+use Siganushka\ApiFactory\ResolverInterface;
+use Siganushka\ApiFactory\ResolverTrait;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Wechat payment parameter utils class.
+ * @see https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_4.shtml
  */
-class ParameterUtils implements OptionsConfigurableInterface
+class ParameterUtils implements ResolverInterface
 {
-    use OptionsConfigurableTrait;
+    use ResolverTrait;
 
-    final public function __construct()
-    {
-    }
+    private SignatureUtils $signatureUtils;
 
-    /**
-     * @return static
-     */
-    public static function create(): self
+    public function __construct(SignatureUtils $signatureUtils = null)
     {
-        return new static();
+        $this->signatureUtils = $signatureUtils ?? new SignatureUtils();
     }
 
     /**
      * 生成 JSAPI 支付参数.
-     *
-     * @see https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_4.shtml
      *
      * @param array $options JSAPI 支付参数
      *
@@ -48,7 +41,7 @@ class ParameterUtils implements OptionsConfigurableInterface
         ];
 
         // Generate signature
-        $parameter['paySign'] = SignatureUtils::create()->generate([
+        $parameter['paySign'] = $this->signatureUtils->generate([
             'mchkey' => $resolved['mchkey'],
             'sign_type' => $resolved['sign_type'],
             'data' => $parameter,
@@ -77,21 +70,13 @@ class ParameterUtils implements OptionsConfigurableInterface
         ];
 
         // Generate signature
-        $parameter['sign'] = SignatureUtils::create()->generate([
+        $parameter['sign'] = $this->signatureUtils->generate([
             'mchkey' => $resolved['mchkey'],
             'sign_type' => $resolved['sign_type'],
             'data' => $parameter,
         ]);
 
         return $parameter;
-    }
-
-    protected function resolve(array $options = []): array
-    {
-        $resolver = new OptionsResolver();
-        $this->configure($resolver);
-
-        return $resolver->resolve($options);
     }
 
     protected function configureOptions(OptionsResolver $resolver): void

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay;
+namespace Siganushka\ApiFactory\Wxpay;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\OptionConfigurator;

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiClient\Wxpay\ConfigurationOptions;
-use Siganushka\ApiClient\Wxpay\Refund;
+use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
+use Siganushka\ApiFactory\Wxpay\Refund;
 
 require __DIR__.'/_autoload.php';
 
@@ -15,7 +15,7 @@ $options = [
 ];
 
 $request = new Refund();
-$request->extend(new ConfigurationOptions($configuration));
+$request->extend(new ConfigurationExtension($configuration));
 
 $result = $request->send($options);
-dd($result);
+dump('订单退款结果：', $result);

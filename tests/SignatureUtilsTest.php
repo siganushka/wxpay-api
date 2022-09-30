@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SignatureUtilsTest extends TestCase
 {
@@ -15,7 +14,7 @@ class SignatureUtilsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->signatureUtils = SignatureUtils::create();
+        $this->signatureUtils = new SignatureUtils();
     }
 
     protected function tearDown(): void
@@ -23,32 +22,23 @@ class SignatureUtilsTest extends TestCase
         $this->signatureUtils = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->signatureUtils->configure($resolver);
-
-        static::assertSame([
-            'mchkey',
-            'sign_type',
-            'data',
-        ], $resolver->getDefinedOptions());
-
         $data = ['foo' => 'hello'];
-        static::assertSame([
+        static::assertEquals([
             'sign_type' => 'MD5',
             'mchkey' => 'foo',
             'data' => $data,
-        ], $resolver->resolve([
+        ], $this->signatureUtils->resolve([
             'mchkey' => 'foo',
             'data' => $data,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'sign_type' => 'HMAC-SHA256',
             'mchkey' => 'foo',
             'data' => $data,
-        ], $resolver->resolve([
+        ], $this->signatureUtils->resolve([
             'mchkey' => 'foo',
             'sign_type' => 'HMAC-SHA256',
             'data' => $data,
@@ -58,7 +48,7 @@ class SignatureUtilsTest extends TestCase
     /**
      * @dataProvider getSignatureProvider
      */
-    public function testGenerate(string $key, array $data, string $sign, string $signType): void
+    public function testGenerate(string $key, array $data, string $signType): void
     {
         $options = [
             'mchkey' => $key,
@@ -66,8 +56,8 @@ class SignatureUtilsTest extends TestCase
             'data' => $data,
         ];
 
-        static::assertSame($sign, $this->signatureUtils->generate($options));
-        static::assertTrue($this->signatureUtils->check($sign, $options));
+        $signature = $this->signatureUtils->generate($options);
+        static::assertTrue($this->signatureUtils->verify($signature, $options));
     }
 
     public function testMchkeyMissingOptionsException(): void
@@ -86,19 +76,16 @@ class SignatureUtilsTest extends TestCase
             [
                 'foo_key',
                 ['foo' => 'hello'],
-                'BC5C27603A4F305796AC0D42737C3AF4',
                 'MD5',
             ],
             [
                 'bar_key',
                 ['bar' => 'world'],
-                '225AFF17105D22B3548D13B875EEA92E783734367FF0C7BD68F67041BD7DCC00',
                 'HMAC-SHA256',
             ],
             [
                 'baz_key',
                 ['bar' => 'hello world'],
-                '3079E28A7DA4046A31CE4D106218A457',
                 'MD5',
             ],
             [
@@ -113,7 +100,6 @@ class SignatureUtilsTest extends TestCase
                     'prepay_id' => 'wx21170426533555ff1203597cc057e00000',
                     'trade_type' => 'JSAPI',
                 ],
-                'B59B4E7330BDA68F8B61D26EA1CCDB7A',
                 'MD5',
             ],
         ];

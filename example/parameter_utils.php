@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiClient\Wxpay\ConfigurationOptions;
-use Siganushka\ApiClient\Wxpay\ParameterUtils;
+use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
+use Siganushka\ApiFactory\Wxpay\ParameterUtils;
 
 require __DIR__.'/_autoload.php';
 
 // 统一下单接口返回的 prepay_id 字段
 $prepayId = 'wx17175520341037c035b014b2e89c520000';
 
-$parameterUtils = ParameterUtils::create();
-$parameterUtils->extend(new ConfigurationOptions($configuration));
+$parameterUtils = new ParameterUtils();
+$parameterUtils->extend(new ConfigurationExtension($configuration));
 
 $options = [
     'prepay_id' => $prepayId,
 ];
 
 $jsapiParameter = $parameterUtils->jsapi($options);
-$appParameter = $parameterUtils->app($options);
+dump('JSAPI 支付参数：', $jsapiParameter);
 
-dd($jsapiParameter, $appParameter);
+$appParameter = $parameterUtils->app($options);
+dump('APP 支付参数：', $appParameter);

@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Exception\ParseResponseException;
-use Siganushka\ApiClient\Wxpay\Query;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Exception\ParseResponseException;
+use Siganushka\ApiFactory\Wxpay\Query;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -20,36 +19,25 @@ use Symfony\Component\Serializer\SerializerInterface;
 class QueryTest extends TestCase
 {
     protected ?SerializerInterface $serializer = null;
+    protected ?SignatureUtils $signatureUtils = null;
     protected ?Query $request = null;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
-        $this->request = new Query(null, $this->serializer);
+        $this->signatureUtils = new SignatureUtils();
+        $this->request = new Query(null, $this->serializer, $this->signatureUtils);
     }
 
     protected function tearDown(): void
     {
         $this->serializer = null;
+        $this->signatureUtils = null;
         $this->request = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->request->configure($resolver);
-
-        static::assertSame([
-            'appid',
-            'mchid',
-            'mchkey',
-            'sign_type',
-            'noncestr',
-            'using_slave_url',
-            'transaction_id',
-            'out_trade_no',
-        ], $resolver->getDefinedOptions());
-
         $options = [
             'appid' => 'test_appid',
             'mchid' => 'test_mchid',
@@ -58,27 +46,27 @@ class QueryTest extends TestCase
             'noncestr' => 'test_noncestr',
         ];
 
-        static::assertSame([
+        static::assertEquals([
+            'appid' => $options['appid'],
+            'mchid' => $options['mchid'],
+            'mchkey' => $options['mchkey'],
             'sign_type' => 'MD5',
             'noncestr' => $options['noncestr'],
             'using_slave_url' => false,
             'transaction_id' => $options['transaction_id'],
             'out_trade_no' => null,
+        ], $this->request->resolve($options));
+
+        static::assertEquals([
             'appid' => $options['appid'],
             'mchid' => $options['mchid'],
             'mchkey' => $options['mchkey'],
-        ], $resolver->resolve($options));
-
-        static::assertSame([
             'sign_type' => 'HMAC-SHA256',
             'noncestr' => $options['noncestr'],
             'using_slave_url' => true,
             'transaction_id' => $options['transaction_id'],
             'out_trade_no' => 'test_out_trade_no',
-            'appid' => $options['appid'],
-            'mchid' => $options['mchid'],
-            'mchkey' => $options['mchkey'],
-        ], $resolver->resolve($options + [
+        ], $this->request->resolve($options + [
             'sign_type' => 'HMAC-SHA256',
             'using_slave_url' => true,
             'out_trade_no' => 'test_out_trade_no',
@@ -104,18 +92,17 @@ class QueryTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
+            'sign_type' => 'MD5',
             'transaction_id' => $options['transaction_id'],
             'nonce_str' => $options['noncestr'],
-            'sign_type' => 'MD5',
         ], $body);
 
         $requestOptions = $this->request->build($options + [
@@ -131,19 +118,19 @@ class QueryTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'sign_type' => 'HMAC-SHA256',
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
+            'sign_type' => 'HMAC-SHA256',
             'transaction_id' => $options['transaction_id'],
             'out_trade_no' => 'test_out_trade_no',
             'nonce_str' => $options['noncestr'],
-            'sign_type' => 'HMAC-SHA256',
         ], $body);
     }
 

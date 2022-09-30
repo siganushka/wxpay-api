@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Exception\ParseResponseException;
-use Siganushka\ApiClient\Wxpay\Refund;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Exception\ParseResponseException;
+use Siganushka\ApiFactory\Wxpay\Refund;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -20,44 +19,25 @@ use Symfony\Component\Serializer\SerializerInterface;
 class RefundTest extends TestCase
 {
     protected ?SerializerInterface $serializer = null;
+    protected ?SignatureUtils $signatureUtils = null;
     protected ?Refund $request = null;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
-        $this->request = new Refund(null, $this->serializer);
+        $this->signatureUtils = new SignatureUtils();
+        $this->request = new Refund(null, $this->serializer, $this->signatureUtils);
     }
 
     protected function tearDown(): void
     {
         $this->serializer = null;
+        $this->signatureUtils = null;
         $this->request = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->request->configure($resolver);
-
-        static::assertSame([
-            'appid',
-            'mchid',
-            'mchkey',
-            'mch_client_cert',
-            'mch_client_key',
-            'sign_type',
-            'noncestr',
-            'transaction_id',
-            'out_trade_no',
-            'out_refund_no',
-            'total_fee',
-            'refund_fee',
-            'refund_fee_type',
-            'refund_desc',
-            'refund_account',
-            'notify_url',
-        ], $resolver->getDefinedOptions());
-
         $options = [
             'appid' => 'test_appid',
             'mchid' => 'test_mchid',
@@ -71,8 +51,16 @@ class RefundTest extends TestCase
             'refund_fee' => 10,
         ];
 
-        static::assertSame([
+        static::assertEquals([
+            'appid' => $options['appid'],
+            'mchid' => $options['mchid'],
+            'mchkey' => $options['mchkey'],
+            'mch_client_cert' => $options['mch_client_cert'],
+            'mch_client_key' => $options['mch_client_key'],
             'sign_type' => 'MD5',
+            'out_refund_no' => $options['out_refund_no'],
+            'total_fee' => $options['total_fee'],
+            'refund_fee' => $options['refund_fee'],
             'noncestr' => $options['noncestr'],
             'transaction_id' => $options['transaction_id'],
             'out_trade_no' => null,
@@ -80,18 +68,18 @@ class RefundTest extends TestCase
             'refund_desc' => null,
             'refund_account' => null,
             'notify_url' => null,
+        ], $this->request->resolve($options));
+
+        static::assertEquals([
             'appid' => $options['appid'],
             'mchid' => $options['mchid'],
             'mchkey' => $options['mchkey'],
             'mch_client_cert' => $options['mch_client_cert'],
             'mch_client_key' => $options['mch_client_key'],
+            'sign_type' => 'HMAC-SHA256',
             'out_refund_no' => $options['out_refund_no'],
             'total_fee' => $options['total_fee'],
             'refund_fee' => $options['refund_fee'],
-        ], $resolver->resolve($options));
-
-        static::assertSame([
-            'sign_type' => 'HMAC-SHA256',
             'noncestr' => $options['noncestr'],
             'transaction_id' => $options['transaction_id'],
             'out_trade_no' => 'test_out_trade_no',
@@ -99,15 +87,7 @@ class RefundTest extends TestCase
             'refund_desc' => 'test_refund_desc',
             'refund_account' => 'REFUND_SOURCE_RECHARGE_FUNDS',
             'notify_url' => 'test_notify_url',
-            'appid' => $options['appid'],
-            'mchid' => $options['mchid'],
-            'mchkey' => $options['mchkey'],
-            'mch_client_cert' => $options['mch_client_cert'],
-            'mch_client_key' => $options['mch_client_key'],
-            'out_refund_no' => $options['out_refund_no'],
-            'total_fee' => $options['total_fee'],
-            'refund_fee' => $options['refund_fee'],
-        ], $resolver->resolve($options + [
+        ], $this->request->resolve($options + [
             'sign_type' => 'HMAC-SHA256',
             'out_trade_no' => 'test_out_trade_no',
             'refund_fee_type' => 'CNY',
@@ -145,13 +125,12 @@ class RefundTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
             'sign_type' => 'MD5',
@@ -176,13 +155,13 @@ class RefundTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'sign_type' => 'HMAC-SHA256',
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
             'sign_type' => 'HMAC-SHA256',

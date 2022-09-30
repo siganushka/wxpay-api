@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay\Tests;
+namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Siganushka\ApiClient\Exception\ParseResponseException;
-use Siganushka\ApiClient\Wxpay\SignatureUtils;
-use Siganushka\ApiClient\Wxpay\Unifiedorder;
+use Siganushka\ApiFactory\Exception\ParseResponseException;
+use Siganushka\ApiFactory\Wxpay\SignatureUtils;
+use Siganushka\ApiFactory\Wxpay\Unifiedorder;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -20,53 +19,25 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UnifiedorderTest extends TestCase
 {
     protected ?SerializerInterface $serializer = null;
+    protected ?SignatureUtils $signatureUtils = null;
     protected ?Unifiedorder $request = null;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
-        $this->request = new Unifiedorder(null, $this->serializer);
+        $this->signatureUtils = new SignatureUtils();
+        $this->request = new Unifiedorder(null, $this->serializer, $this->signatureUtils);
     }
 
     protected function tearDown(): void
     {
         $this->serializer = null;
+        $this->signatureUtils = null;
         $this->request = null;
     }
 
-    public function testConfigure(): void
+    public function testResolve(): void
     {
-        $resolver = new OptionsResolver();
-        $this->request->configure($resolver);
-
-        static::assertSame([
-            'appid',
-            'mchid',
-            'mchkey',
-            'sign_type',
-            'noncestr',
-            'client_ip',
-            'using_slave_url',
-            'device_info',
-            'body',
-            'detail',
-            'attach',
-            'out_trade_no',
-            'fee_type',
-            'total_fee',
-            'time_start',
-            'time_expire',
-            'goods_tag',
-            'notify_url',
-            'trade_type',
-            'product_id',
-            'limit_pay',
-            'openid',
-            'receipt',
-            'profit_sharing',
-            'scene_info',
-        ], $resolver->getDefinedOptions());
-
         $options = [
             'appid' => 'test_appid',
             'mchid' => 'test_mchid',
@@ -106,7 +77,7 @@ class UnifiedorderTest extends TestCase
             'receipt' => null,
             'profit_sharing' => null,
             'scene_info' => null,
-        ], $resolver->resolve($options));
+        ], $this->request->resolve($options));
 
         $timeStartAt = new \DateTimeImmutable();
         $timeExpireAt = $timeStartAt->modify('+7 days');
@@ -154,7 +125,7 @@ class UnifiedorderTest extends TestCase
             'receipt' => $options['receipt'],
             'profit_sharing' => $options['profit_sharing'],
             'scene_info' => $options['scene_info'],
-        ], $resolver->resolve($options));
+        ], $this->request->resolve($options));
     }
 
     public function testBuild(): void
@@ -181,13 +152,12 @@ class UnifiedorderTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        $signatureUtils = SignatureUtils::create();
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
             'nonce_str' => $options['noncestr'],
@@ -228,13 +198,13 @@ class UnifiedorderTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'sign_type' => $options['sign_type'],
             'data' => $body,
         ]));
 
-        static::assertSame([
+        static::assertEquals([
             'appid' => $options['appid'],
             'mch_id' => $options['mchid'],
             'device_info' => $options['device_info'],

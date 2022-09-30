@@ -2,36 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Siganushka\ApiClient\Wxpay;
+namespace Siganushka\ApiFactory\Wxpay;
 
-use Siganushka\ApiClient\AbstractRequest;
-use Siganushka\ApiClient\Exception\ParseResponseException;
-use Siganushka\ApiClient\RequestOptions;
+use Siganushka\ApiFactory\Exception\ParseResponseException;
+use Siganushka\ApiFactory\RequestOptions;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_4
  */
-class Refund extends AbstractRequest
+class Refund extends AbstractWxpayRequest
 {
     public const URL = 'https://api.mch.weixin.qq.com/secapi/pay/refund';
-
-    private SerializerInterface $serializer;
-
-    public function __construct(HttpClientInterface $httpClient = null, SerializerInterface $serializer = null)
-    {
-        $this->serializer = $serializer ?? new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
-
-        parent::__construct($httpClient);
-    }
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
@@ -124,7 +109,7 @@ class Refund extends AbstractRequest
         ], fn ($value) => null !== $value);
 
         // Generate signature
-        $body['sign'] = SignatureUtils::create()->generate([
+        $body['sign'] = $this->signatureUtils->generate([
             'mchkey' => $options['mchkey'],
             'sign_type' => $options['sign_type'],
             'data' => $body,
