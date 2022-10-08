@@ -49,7 +49,7 @@ final class OptionsUtils
             ->allowedTypes('string')
             ->normalize(function (Options $options, ?string $mchClientCert) {
                 if (null !== $mchClientCert && !is_file($mchClientCert)) {
-                    throw new InvalidOptionsException('The option "mch_client_cert" file does not exists.');
+                    throw new InvalidOptionsException(sprintf('The option "mch_client_cert" with file "%s" does not exists.', $mchClientCert));
                 }
 
                 return $mchClientCert;
@@ -65,7 +65,7 @@ final class OptionsUtils
             ->allowedTypes('string')
             ->normalize(function (Options $options, ?string $mchClientKey) {
                 if (null !== $mchClientKey && !is_file($mchClientKey)) {
-                    throw new InvalidOptionsException('The option "mch_client_key" file does not exists.');
+                    throw new InvalidOptionsException(sprintf('The option "mch_client_key" with file "%s" does not exists.', $mchClientKey));
                 }
 
                 return $mchClientKey;

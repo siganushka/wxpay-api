@@ -45,20 +45,6 @@ class ConfigurationTest extends TestCase
         ], $configuration->toArray());
     }
 
-    public function testResolve(): void
-    {
-        $configs = [
-            'appid' => 'test_appid',
-            'mchid' => 'test_mchid',
-            'mchkey' => 'test_mchkey',
-            'mch_client_cert' => static::MCH_CLIENT_CERT,
-            'mch_client_key' => static::MCH_CLIENT_KEY,
-        ];
-
-        $configuration = static::create($configs);
-        static::assertEquals($configuration->toArray(), $configuration->resolve($configs));
-    }
-
     public function testAppidInvalidOptionsException(): void
     {
         $this->expectException(InvalidOptionsException::class);
@@ -111,7 +97,7 @@ class ConfigurationTest extends TestCase
     public function testMchClientCertFileNotFoundException(): void
     {
         $this->expectException(InvalidOptionsException::class);
-        $this->expectExceptionMessage('The option "mch_client_cert" file does not exists');
+        $this->expectExceptionMessage('The option "mch_client_cert" with file "non_existing_file.pem" does not exists');
 
         static::create([
             'appid' => 'test_appid',
@@ -137,7 +123,7 @@ class ConfigurationTest extends TestCase
     public function testMchClientKeyFileNotFoundException(): void
     {
         $this->expectException(InvalidOptionsException::class);
-        $this->expectExceptionMessage('The option "mch_client_key" file does not exists');
+        $this->expectExceptionMessage('The option "mch_client_key" with file "non_existing_file.pem" does not exists');
 
         static::create([
             'appid' => 'test_appid',
