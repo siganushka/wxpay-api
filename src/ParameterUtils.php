@@ -81,12 +81,12 @@ class ParameterUtils implements ResolverInterface
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::appid($resolver);
-        OptionsUtils::mchid($resolver);
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::sign_type($resolver);
-        OptionsUtils::timestamp($resolver);
-        OptionsUtils::noncestr($resolver);
+        OptionSet::appid($resolver);
+        OptionSet::mchid($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::sign_type($resolver);
+        OptionSet::timestamp($resolver);
+        OptionSet::noncestr($resolver);
 
         $resolver
             ->define('prepay_id')

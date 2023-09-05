@@ -20,14 +20,14 @@ class Transfer extends AbstractWxpayRequest
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::appid($resolver);
-        OptionsUtils::mchid($resolver);
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::mch_client_cert($resolver);
-        OptionsUtils::mch_client_key($resolver);
-        OptionsUtils::sign_type($resolver);
-        OptionsUtils::noncestr($resolver);
-        OptionsUtils::client_ip($resolver);
+        OptionSet::appid($resolver);
+        OptionSet::mchid($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::mch_client_cert($resolver);
+        OptionSet::mch_client_key($resolver);
+        OptionSet::sign_type($resolver);
+        OptionSet::noncestr($resolver);
+        OptionSet::client_ip($resolver);
 
         $resolver
             ->define('device_info')

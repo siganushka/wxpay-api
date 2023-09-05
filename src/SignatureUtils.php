@@ -33,7 +33,7 @@ class SignatureUtils implements ResolverInterface
         $signature = http_build_query($rawData);
         $signature = urldecode($signature);
 
-        $signature = (OptionsUtils::SIGN_TYPE_SHA256 === $resolved['sign_type'])
+        $signature = (OptionSet::SIGN_TYPE_SHA256 === $resolved['sign_type'])
             ? hash_hmac('sha256', $signature, $resolved['mchkey'])
             : hash('md5', $signature);
 
@@ -47,8 +47,8 @@ class SignatureUtils implements ResolverInterface
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::sign_type($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::sign_type($resolver);
 
         $resolver
             ->define('data')

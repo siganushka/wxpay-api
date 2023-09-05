@@ -21,12 +21,12 @@ class Query extends AbstractWxpayRequest
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::appid($resolver);
-        OptionsUtils::mchid($resolver);
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::sign_type($resolver);
-        OptionsUtils::noncestr($resolver);
-        OptionsUtils::using_slave_url($resolver);
+        OptionSet::appid($resolver);
+        OptionSet::mchid($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::sign_type($resolver);
+        OptionSet::noncestr($resolver);
+        OptionSet::using_slave_url($resolver);
 
         $resolver
             ->define('transaction_id')

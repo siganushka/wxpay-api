@@ -20,13 +20,13 @@ class Refund extends AbstractWxpayRequest
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::appid($resolver);
-        OptionsUtils::mchid($resolver);
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::mch_client_cert($resolver);
-        OptionsUtils::mch_client_key($resolver);
-        OptionsUtils::sign_type($resolver);
-        OptionsUtils::noncestr($resolver);
+        OptionSet::appid($resolver);
+        OptionSet::mchid($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::mch_client_cert($resolver);
+        OptionSet::mch_client_key($resolver);
+        OptionSet::sign_type($resolver);
+        OptionSet::noncestr($resolver);
 
         $resolver
             ->define('transaction_id')

@@ -14,11 +14,11 @@ class Configuration extends AbstractConfiguration
 {
     public static function configureOptions(OptionsResolver $resolver): void
     {
-        OptionsUtils::appid($resolver);
-        OptionsUtils::mchid($resolver);
-        OptionsUtils::mchkey($resolver);
-        OptionsUtils::mch_client_cert($resolver);
-        OptionsUtils::mch_client_key($resolver);
+        OptionSet::appid($resolver);
+        OptionSet::mchid($resolver);
+        OptionSet::mchkey($resolver);
+        OptionSet::mch_client_cert($resolver);
+        OptionSet::mch_client_key($resolver);
 
         foreach (['mch_client_cert', 'mch_client_key'] as $option) {
             $resolver->setDefault($option, null);
