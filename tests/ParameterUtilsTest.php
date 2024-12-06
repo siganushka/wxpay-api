@@ -10,19 +10,13 @@ use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 
 class ParameterUtilsTest extends TestCase
 {
-    private ?SignatureUtils $signatureUtils = null;
-    private ?ParameterUtils $parameterUtils = null;
+    protected SignatureUtils $signatureUtils;
+    protected ParameterUtils $parameterUtils;
 
     protected function setUp(): void
     {
         $this->signatureUtils = new SignatureUtils();
         $this->parameterUtils = new ParameterUtils($this->signatureUtils);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->signatureUtils = null;
-        $this->parameterUtils = null;
     }
 
     public function testResolve(): void

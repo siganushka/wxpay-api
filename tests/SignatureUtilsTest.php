@@ -10,16 +10,11 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
 class SignatureUtilsTest extends TestCase
 {
-    private ?SignatureUtils $signatureUtils = null;
+    protected SignatureUtils $signatureUtils;
 
     protected function setUp(): void
     {
         $this->signatureUtils = new SignatureUtils();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->signatureUtils = null;
     }
 
     public function testResolve(): void

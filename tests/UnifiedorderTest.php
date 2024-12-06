@@ -18,22 +18,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class UnifiedorderTest extends TestCase
 {
-    protected ?SerializerInterface $serializer = null;
-    protected ?SignatureUtils $signatureUtils = null;
-    protected ?Unifiedorder $request = null;
+    protected SerializerInterface $serializer;
+    protected SignatureUtils $signatureUtils;
+    protected Unifiedorder $request;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
         $this->signatureUtils = new SignatureUtils();
         $this->request = new Unifiedorder(null, $this->serializer, $this->signatureUtils);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->serializer = null;
-        $this->signatureUtils = null;
-        $this->request = null;
     }
 
     public function testResolve(): void
@@ -147,6 +140,7 @@ class UnifiedorderTest extends TestCase
         static::assertSame('POST', $requestOptions->getMethod());
         static::assertSame(Unifiedorder::URL, $requestOptions->getUrl());
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
@@ -193,6 +187,7 @@ class UnifiedorderTest extends TestCase
 
         $requestOptions = $this->request->build($options);
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];

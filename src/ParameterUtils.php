@@ -17,7 +17,7 @@ class ParameterUtils implements ResolverInterface
 
     private SignatureUtils $signatureUtils;
 
-    public function __construct(SignatureUtils $signatureUtils = null)
+    public function __construct(?SignatureUtils $signatureUtils = null)
     {
         $this->signatureUtils = $signatureUtils ?? new SignatureUtils();
     }
@@ -36,7 +36,7 @@ class ParameterUtils implements ResolverInterface
             'appId' => $resolved['appid'],
             'timeStamp' => $resolved['timestamp'],
             'nonceStr' => $resolved['noncestr'],
-            'package' => sprintf('prepay_id=%s', $options['prepay_id']),
+            'package' => \sprintf('prepay_id=%s', $options['prepay_id']),
             'signType' => $resolved['sign_type'],
         ];
 

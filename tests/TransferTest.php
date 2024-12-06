@@ -18,22 +18,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class TransferTest extends TestCase
 {
-    protected ?SerializerInterface $serializer = null;
-    protected ?SignatureUtils $signatureUtils = null;
-    protected ?Transfer $request = null;
+    protected SerializerInterface $serializer;
+    protected SignatureUtils $signatureUtils;
+    protected Transfer $request;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
         $this->signatureUtils = new SignatureUtils();
         $this->request = new Transfer(null, $this->serializer, $this->signatureUtils);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->serializer = null;
-        $this->signatureUtils = null;
-        $this->request = null;
     }
 
     public function testResolve(): void
@@ -126,6 +119,7 @@ class TransferTest extends TestCase
         static::assertSame($requestOptions->toArray()['local_cert'], $options['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $options['mch_client_key']);
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
@@ -157,6 +151,7 @@ class TransferTest extends TestCase
             'finder_template_id' => 'test_finder_template_id',
         ]);
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];

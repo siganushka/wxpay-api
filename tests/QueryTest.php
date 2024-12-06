@@ -18,22 +18,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class QueryTest extends TestCase
 {
-    protected ?SerializerInterface $serializer = null;
-    protected ?SignatureUtils $signatureUtils = null;
-    protected ?Query $request = null;
+    protected SerializerInterface $serializer;
+    protected SignatureUtils $signatureUtils;
+    protected Query $request;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
         $this->signatureUtils = new SignatureUtils();
         $this->request = new Query(null, $this->serializer, $this->signatureUtils);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->serializer = null;
-        $this->signatureUtils = null;
-        $this->request = null;
     }
 
     public function testResolve(): void
@@ -87,6 +80,7 @@ class QueryTest extends TestCase
         static::assertSame('POST', $requestOptions->getMethod());
         static::assertSame(Query::URL, $requestOptions->getUrl());
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
@@ -113,6 +107,7 @@ class QueryTest extends TestCase
 
         static::assertSame(Query::URL2, $requestOptions->getUrl());
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];

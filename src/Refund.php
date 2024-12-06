@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Siganushka\ApiFactory\Wxpay;
 
-use Siganushka\ApiFactory\Exception\ParseResponseException;
 use Siganushka\ApiFactory\RequestOptions;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_4
@@ -122,23 +120,5 @@ class Refund extends AbstractWxpayRequest
             ->setLocalCert($options['mch_client_cert'])
             ->setLocalPk($options['mch_client_key'])
         ;
-    }
-
-    protected function parseResponse(ResponseInterface $response): array
-    {
-        $result = $this->serializer->deserialize($response->getContent(), 'string[]', 'xml');
-
-        $returnCode = (string) ($result['return_code'] ?? '');
-        $resultCode = (string) ($result['result_code'] ?? '');
-
-        if ('FAIL' === $returnCode) {
-            throw new ParseResponseException($response, (string) ($result['return_msg'] ?? ''));
-        }
-
-        if ('FAIL' === $resultCode) {
-            throw new ParseResponseException($response, (string) ($result['err_code_des'] ?? ''));
-        }
-
-        return $result;
     }
 }

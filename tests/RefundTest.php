@@ -18,22 +18,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class RefundTest extends TestCase
 {
-    protected ?SerializerInterface $serializer = null;
-    protected ?SignatureUtils $signatureUtils = null;
-    protected ?Refund $request = null;
+    protected SerializerInterface $serializer;
+    protected SignatureUtils $signatureUtils;
+    protected Refund $request;
 
     protected function setUp(): void
     {
         $this->serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
         $this->signatureUtils = new SignatureUtils();
         $this->request = new Refund(null, $this->serializer, $this->signatureUtils);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->serializer = null;
-        $this->signatureUtils = null;
-        $this->request = null;
     }
 
     public function testResolve(): void
@@ -120,6 +113,7 @@ class RefundTest extends TestCase
         static::assertSame($requestOptions->toArray()['local_cert'], $configuration['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $configuration['mch_client_key']);
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
@@ -150,6 +144,7 @@ class RefundTest extends TestCase
             'notify_url' => 'test_notify_url',
         ]);
 
+        /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
 
         $signature = $body['sign'];
