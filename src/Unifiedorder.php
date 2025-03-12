@@ -105,13 +105,6 @@ class Unifiedorder extends AbstractWxpayRequest
             ->define('product_id')
             ->default(null)
             ->allowedTypes('null', 'string')
-            ->normalize(function (Options $options, ?string $productId) {
-                if ('NATIVE' === $options['trade_type'] && null === $productId) {
-                    throw new MissingOptionsException('The required option "product_id" is missing (when "trade_type" option is set to "NATIVE").');
-                }
-
-                return $productId;
-            })
         ;
 
         $resolver
