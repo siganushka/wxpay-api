@@ -18,42 +18,36 @@ class SignatureUtils implements ResolverInterface
     /**
      * 生成数据签名.
      *
-     * @param array $options 数据签名选项
+     * @param array $data    待签名数据
+     * @param array $options 自定义选项
      *
      * @return string 数据签名
      */
-    public function generate(array $options = []): string
+    public function generate(array $data, array $options = []): string
     {
         $resolved = $this->resolve($options);
-        $rawData = $resolved['data'];
 
-        ksort($rawData);
-        $rawData['key'] = $resolved['mchkey'];
+        ksort($data);
+        $data['key'] = $resolved['mchkey'];
 
-        $signature = http_build_query($rawData);
-        $signature = urldecode($signature);
+        $stringToSignature = http_build_query($data);
+        $stringToSignature = urldecode($stringToSignature);
 
         $signature = (OptionSet::SIGN_TYPE_SHA256 === $resolved['sign_type'])
-            ? hash_hmac('sha256', $signature, $resolved['mchkey'])
-            : hash('md5', $signature);
+            ? hash_hmac('sha256', $stringToSignature, $resolved['mchkey'])
+            : hash('md5', $stringToSignature);
 
         return strtoupper($signature);
     }
 
-    public function verify(string $signature, array $options = []): bool
+    public function verify(string $signature, array $data, array $options = []): bool
     {
-        return 0 === strcmp($signature, $this->generate($options));
+        return 0 === strcmp($signature, $this->generate($data, $options));
     }
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
         OptionSet::mchkey($resolver);
         OptionSet::sign_type($resolver);
-
-        $resolver
-            ->define('data')
-            ->required()
-            ->allowedTypes('array')
-        ;
     }
 }

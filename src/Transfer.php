@@ -115,10 +115,9 @@ class Transfer extends AbstractWxpayRequest
         ], fn ($value) => null !== $value);
 
         // Generate signature
-        $body['sign'] = $this->signatureUtils->generate([
+        $body['sign'] = $this->signatureUtils->generate($body, [
             'mchkey' => $options['mchkey'],
             'sign_type' => $options['sign_type'],
-            'data' => $body,
         ]);
 
         $request

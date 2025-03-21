@@ -32,7 +32,7 @@ class ParameterUtils implements ResolverInterface
     public function jsapi(array $options = []): array
     {
         $resolved = $this->resolve($options);
-        $parameter = [
+        $data = [
             'appId' => $resolved['appid'],
             'timeStamp' => $resolved['timestamp'],
             'nonceStr' => $resolved['noncestr'],
@@ -41,13 +41,12 @@ class ParameterUtils implements ResolverInterface
         ];
 
         // Generate signature
-        $parameter['paySign'] = $this->signatureUtils->generate([
+        $data['paySign'] = $this->signatureUtils->generate($data, [
             'mchkey' => $resolved['mchkey'],
             'sign_type' => $resolved['sign_type'],
-            'data' => $parameter,
         ]);
 
-        return $parameter;
+        return $data;
     }
 
     /**
@@ -60,7 +59,7 @@ class ParameterUtils implements ResolverInterface
     public function app(array $options = []): array
     {
         $resolved = $this->resolve($options);
-        $parameter = [
+        $data = [
             'appid' => $resolved['appid'],
             'partnerid' => $resolved['mchid'],
             'prepayid' => $options['prepay_id'],
@@ -70,13 +69,12 @@ class ParameterUtils implements ResolverInterface
         ];
 
         // Generate signature
-        $parameter['sign'] = $this->signatureUtils->generate([
+        $data['sign'] = $this->signatureUtils->generate($data, [
             'mchkey' => $resolved['mchkey'],
             'sign_type' => $resolved['sign_type'],
-            'data' => $parameter,
         ]);
 
-        return $parameter;
+        return $data;
     }
 
     protected function configureOptions(OptionsResolver $resolver): void

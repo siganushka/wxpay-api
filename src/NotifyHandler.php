@@ -37,13 +37,7 @@ class NotifyHandler implements ResolverInterface
         $signature = $data['sign'] ?? '';
         unset($data['sign']);
 
-        $options = [
-            'mchkey' => $resolved['mchkey'],
-            'sign_type' => $resolved['sign_type'],
-            'data' => $data,
-        ];
-
-        if (!$this->signatureUtils->verify($signature, $options)) {
+        if (!$this->signatureUtils->verify($signature, $data, $resolved)) {
             throw new \RuntimeException('Invalid signature.');
         }
 
@@ -53,9 +47,9 @@ class NotifyHandler implements ResolverInterface
     public function handleRequest(Request $request): array
     {
         /** @var array<string, string> */
-        $parameters = $this->serializer->deserialize($request->getContent(), 'string[]', 'xml');
+        $data = $this->serializer->deserialize($request->getContent(), 'string[]', 'xml');
 
-        return $this->handle($parameters);
+        return $this->handle($data);
     }
 
     public function success(?string $message = null): Response

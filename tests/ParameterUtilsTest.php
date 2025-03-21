@@ -52,7 +52,7 @@ class ParameterUtilsTest extends TestCase
         static::assertSame('test_prepay_id', $resolved['prepay_id']);
     }
 
-    public function testJsapiParameter(): void
+    public function testJsapi(): void
     {
         $options = [
             'appid' => 'test_appid',
@@ -61,24 +61,23 @@ class ParameterUtilsTest extends TestCase
             'prepay_id' => 'test_prepay_id',
         ];
 
-        $parameter = $this->parameterUtils->jsapi($options);
-        static::assertSame('test_appid', $parameter['appId']);
-        static::assertSame('prepay_id=test_prepay_id', $parameter['package']);
-        static::assertSame('MD5', $parameter['signType']);
-        static::assertArrayHasKey('timeStamp', $parameter);
-        static::assertArrayHasKey('nonceStr', $parameter);
-        static::assertArrayHasKey('paySign', $parameter);
+        $data = $this->parameterUtils->jsapi($options);
+        static::assertSame('test_appid', $data['appId']);
+        static::assertSame('prepay_id=test_prepay_id', $data['package']);
+        static::assertSame('MD5', $data['signType']);
+        static::assertArrayHasKey('timeStamp', $data);
+        static::assertArrayHasKey('nonceStr', $data);
+        static::assertArrayHasKey('paySign', $data);
 
-        $sign = $parameter['paySign'];
-        unset($parameter['paySign']);
+        $sign = $data['paySign'];
+        unset($data['paySign']);
 
-        static::assertTrue($this->signatureUtils->verify($sign, [
+        static::assertTrue($this->signatureUtils->verify($sign, $data, [
             'mchkey' => $options['mchkey'],
-            'data' => $parameter,
         ]));
     }
 
-    public function testAppParameter(): void
+    public function testApp(): void
     {
         $options = [
             'appid' => 'test_appid',
@@ -87,21 +86,20 @@ class ParameterUtilsTest extends TestCase
             'prepay_id' => 'test_prepay_id',
         ];
 
-        $parameter = $this->parameterUtils->app($options);
-        static::assertSame('test_appid', $parameter['appid']);
-        static::assertSame('test_mchid', $parameter['partnerid']);
-        static::assertSame('test_prepay_id', $parameter['prepayid']);
-        static::assertSame('Sign=WXPay', $parameter['package']);
-        static::assertArrayHasKey('noncestr', $parameter);
-        static::assertArrayHasKey('timestamp', $parameter);
-        static::assertArrayHasKey('sign', $parameter);
+        $data = $this->parameterUtils->app($options);
+        static::assertSame('test_appid', $data['appid']);
+        static::assertSame('test_mchid', $data['partnerid']);
+        static::assertSame('test_prepay_id', $data['prepayid']);
+        static::assertSame('Sign=WXPay', $data['package']);
+        static::assertArrayHasKey('noncestr', $data);
+        static::assertArrayHasKey('timestamp', $data);
+        static::assertArrayHasKey('sign', $data);
 
-        $sign = $parameter['sign'];
-        unset($parameter['sign']);
+        $sign = $data['sign'];
+        unset($data['sign']);
 
-        static::assertTrue($this->signatureUtils->verify($sign, [
+        static::assertTrue($this->signatureUtils->verify($sign, $data, [
             'mchkey' => $options['mchkey'],
-            'data' => $parameter,
         ]));
     }
 }

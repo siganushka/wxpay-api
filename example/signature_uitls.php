@@ -10,17 +10,13 @@ require __DIR__.'/_autoload.php';
 $signatureUtils = new SignatureUtils();
 $signatureUtils->extend(new ConfigurationExtension($configuration));
 
-$rawData = [
+// 待待签名数据
+$data = [
     'foo' => 'bar',
 ];
 
-$options = [
-    'data' => $rawData,
-    // 'sign_type' => 'HMAC-SHA256', // MD5/HMAC-SHA256
-];
-
-$signature = $signatureUtils->generate($options);
+$signature = $signatureUtils->generate($data);
 dump('生成签名结果：', $signature);
 
-$iSsignatureValid = $signatureUtils->verify($signature, $options);
-dump('验证签名结果：', $iSsignatureValid);
+$isValid = $signatureUtils->verify($signature, $data);
+dump('验证签名结果：', $isValid);

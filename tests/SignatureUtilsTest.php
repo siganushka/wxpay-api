@@ -23,20 +23,16 @@ class SignatureUtilsTest extends TestCase
         static::assertEquals([
             'sign_type' => 'MD5',
             'mchkey' => 'foo',
-            'data' => $data,
         ], $this->signatureUtils->resolve([
             'mchkey' => 'foo',
-            'data' => $data,
         ]));
 
         static::assertEquals([
             'sign_type' => 'HMAC-SHA256',
             'mchkey' => 'foo',
-            'data' => $data,
         ], $this->signatureUtils->resolve([
             'mchkey' => 'foo',
             'sign_type' => 'HMAC-SHA256',
-            'data' => $data,
         ]));
     }
 
@@ -48,11 +44,10 @@ class SignatureUtilsTest extends TestCase
         $options = [
             'mchkey' => $key,
             'sign_type' => $signType,
-            'data' => $data,
         ];
 
-        $signature = $this->signatureUtils->generate($options);
-        static::assertTrue($this->signatureUtils->verify($signature, $options));
+        $signature = $this->signatureUtils->generate($data, $options);
+        static::assertTrue($this->signatureUtils->verify($signature, $data, $options));
     }
 
     public function testMchkeyMissingOptionsException(): void
@@ -60,9 +55,7 @@ class SignatureUtilsTest extends TestCase
         $this->expectException(MissingOptionsException::class);
         $this->expectExceptionMessage('The required option "mchkey" is missing');
 
-        $this->signatureUtils->generate([
-            'data' => ['foo' => 'hello'],
-        ]);
+        $this->signatureUtils->generate(['foo' => 'hello']);
     }
 
     public function getSignatureProvider(): array

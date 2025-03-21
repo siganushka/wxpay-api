@@ -26,6 +26,7 @@ class ConfigurationExtensionTest extends TestCase
     public function testConfigureOptions(): void
     {
         $resolver = new OptionsResolver();
+        $resolver->setDefined(['appid', 'mchid', 'mchkey', 'mch_client_cert', 'mch_client_key']);
         $this->extension->configureOptions($resolver);
 
         static::assertEquals([

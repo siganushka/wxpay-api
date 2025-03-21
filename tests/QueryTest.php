@@ -86,9 +86,8 @@ class QueryTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $this->signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate($body, [
             'mchkey' => $options['mchkey'],
-            'data' => $body,
         ]));
 
         static::assertEquals([
@@ -113,10 +112,9 @@ class QueryTest extends TestCase
         $signature = $body['sign'];
         unset($body['sign']);
 
-        static::assertSame($signature, $this->signatureUtils->generate([
+        static::assertSame($signature, $this->signatureUtils->generate($body, [
             'mchkey' => $options['mchkey'],
             'sign_type' => 'HMAC-SHA256',
-            'data' => $body,
         ]));
 
         static::assertEquals([
