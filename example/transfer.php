@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
 use Siganushka\ApiFactory\Wxpay\Transfer;
 
 require __DIR__.'/_autoload.php';
@@ -17,7 +16,7 @@ $options = [
 ];
 
 $request = new Transfer();
-$request->extend(new ConfigurationExtension($configuration));
+$request->extend($configurationExtension);
 
 $result = $request->send($options);
 dump('红包发送结果：', $result);

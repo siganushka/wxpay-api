@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
 use Siganushka\ApiFactory\Wxpay\ParameterUtils;
 
 require __DIR__.'/_autoload.php';
@@ -11,7 +10,7 @@ require __DIR__.'/_autoload.php';
 $prepayId = 'wx17175520341037c035b014b2e89c520000';
 
 $parameterUtils = new ParameterUtils();
-$parameterUtils->extend(new ConfigurationExtension($configuration));
+$parameterUtils->extend($configurationExtension);
 
 $options = [
     'prepay_id' => $prepayId,

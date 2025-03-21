@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Siganushka\ApiFactory\Wxpay\Configuration;
+use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
 use Symfony\Component\ErrorHandler\Debug;
 
 require __DIR__.'/../vendor/autoload.php';
@@ -22,3 +23,4 @@ if (!is_file($configFile)) {
 }
 
 $configuration = new Configuration(require $configFile);
+$configurationExtension = new ConfigurationExtension($configuration);

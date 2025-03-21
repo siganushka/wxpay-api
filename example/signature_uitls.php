@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
 use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 
 require __DIR__.'/_autoload.php';
 
 $signatureUtils = new SignatureUtils();
-$signatureUtils->extend(new ConfigurationExtension($configuration));
+$signatureUtils->extend($configurationExtension);
 
 // 待待签名数据
 $data = [

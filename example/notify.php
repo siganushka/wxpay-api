@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
 use Siganushka\ApiFactory\Wxpay\NotifyHandler;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,7 +24,7 @@ $data = [
 ];
 
 $handler = new NotifyHandler();
-$handler->extend(new ConfigurationExtension($configuration));
+$handler->extend($configurationExtension);
 
 try {
     $data = $handler->handle($data);
