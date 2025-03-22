@@ -18,10 +18,13 @@ class NotifyHandler implements ResolverInterface
 {
     use ResolverTrait;
 
-    public function __construct(
-        private readonly SerializerInterface $serializer = new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]),
-        private readonly SignatureUtils $signatureUtils = new SignatureUtils())
+    protected SerializerInterface $serializer;
+    protected SignatureUtils $signatureUtils;
+
+    public function __construct(?SerializerInterface $serializer = null, ?SignatureUtils $signatureUtils = null)
     {
+        $this->serializer = $serializer ?? new Serializer([new ArrayDenormalizer()], [new XmlEncoder()]);
+        $this->signatureUtils = $signatureUtils ?? new SignatureUtils();
     }
 
     /**
