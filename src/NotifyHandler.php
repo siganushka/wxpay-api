@@ -28,41 +28,41 @@ class NotifyHandler implements ResolverInterface
     }
 
     /**
-     * @param array $data    微信支付结果通知数据
-     * @param array $options 自定义选项
+     * @param Request $request 微信支付结果通知请求对象
+     * @param array   $options 自定义选项
      *
-     * @return array 微信支付结果通知数据
+     * @return array             微信支付结果通知数据
+     * @throws \RuntimeException 支付通知请求数据无效/签名验证失败
      */
-    public function handle(array $data, array $options = []): array
+    public function handle(Request $request, array $options = []): array
     {
+        try {
+            /** @var array<string, string> */
+            $data = $this->serializer->deserialize($request->getContent(), 'string[]', 'xml');
+        } catch (\Throwable $th) {
+            throw new \RuntimeException('Invalid Request.', 0, $th);
+        }
+
         $resolved = $this->resolve($options);
 
         $signature = $data['sign'] ?? '';
-        unset($data['sign']);
+        $signatureData = array_filter($data, fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
 
-        if (!$this->signatureUtils->verify($signature, $data, $resolved)) {
+        if (!$this->signatureUtils->verify($signature, $signatureData, $resolved)) {
             throw new \RuntimeException('Invalid signature.');
         }
 
         return $data;
     }
 
-    public function handleRequest(Request $request): array
-    {
-        /** @var array<string, string> */
-        $data = $this->serializer->deserialize($request->getContent(), 'string[]', 'xml');
-
-        return $this->handle($data);
-    }
-
     public function success(?string $message = null): Response
     {
-        return $this->createXmlResponse('SUCCESS', $message)->send();
+        return $this->createXmlResponse('SUCCESS', $message);
     }
 
     public function fail(?string $message = null): Response
     {
-        return $this->createXmlResponse('FAIL', $message)->send();
+        return $this->createXmlResponse('FAIL', $message);
     }
 
     protected function createXmlResponse(string $code, ?string $message): Response

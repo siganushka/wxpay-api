@@ -19,7 +19,6 @@ class SignatureUtilsTest extends TestCase
 
     public function testResolve(): void
     {
-        $data = ['foo' => 'hello'];
         static::assertEquals([
             'sign_type' => 'MD5',
             'mchkey' => 'foo',

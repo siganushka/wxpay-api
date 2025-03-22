@@ -7,30 +7,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 require __DIR__.'/_autoload.php';
 
-// 微信支付结果通知数据
-$data = [
-    'appid' => 'xxx',
-    'mch_id' => 'xxx',
-    'openid' => 'xxx',
-    'out_trade_no' => 'xxx',
-    'bank_type' => 'xxx',
-    'result_code' => 'xxx',
-    'return_code' => 'xxx',
-    'time_end' => 'xxx',
-    'total_fee' => 'xxx',
-    'trade_type' => 'xxx',
-    'transaction_id' => 'xxx',
-    'sign' => '513D149C277A9F274C614099161CBC65',
-];
+// 微信支付结果通知请求对象
+$request = Request::createFromGlobals();
 
 $handler = new NotifyHandler();
 $handler->extend($configurationExtension);
 
 try {
-    $data = $handler->handle($data);
-    // $data = $handler->handleRequest(Request::createFromGlobals());
+    $data = $handler->handle($request);
 } catch (Throwable $th) {
-    $handler->fail($th->getMessage());
+    $handler->fail($th->getMessage())->send();
 }
 
 // 处理其它业务逻辑...
@@ -39,4 +25,4 @@ try {
 //     $handler->fail('订单号无效！');
 // }
 
-$handler->success('ok');
+$handler->success('ok')->send();
