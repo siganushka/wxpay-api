@@ -1,11 +1,11 @@
 # Wxpay API
 
-基于 [siganushka/api-factory](https://github.com/siganushka/api-factory) 抽象层的微信支付相关接口实现。
+微信支付相关接口实现。基于 [siganushka/api-factory](https://github.com/siganushka/api-factory) 抽象层，可快速实现微信支付相关业务。
 
 ### 安装
 
 ```bash
-$ composer require siganushka/wxpay-api dev-main
+$ composer require siganushka/wxpay-api
 ```
 
 ### 使用
@@ -22,15 +22,16 @@ $ composer require siganushka/wxpay-api dev-main
 | example/transfer.php | 微信支付付款到零钱 |
 | example/parameter_utils.php | 生成微信支付参数 |
 | example/signature_uitls.php | 生成、验证支付签名 |
+| example/notify.php | 微信支付异步通知 |
 
 ### 框架集成
 
-该 SDK 包已集成至 `siganushka/api-factory-bundle`，适用于 `Symfony` 框架，以上所有示例将以服务的形式在框架中使用。
+`Symfony` 项目已集成至 [siganushka/api-factory-bundle](https://github.com/siganushka/api-factory-bundle)，将以服务的形式使用。
 
 安装
 
 ```bash
-$ composer require siganushka/api-factory-bundle siganushka/wxpay-api dev-main
+$ composer require siganushka/wxpay-api siganushka/api-factory-bundle
 ```
 
 配置
@@ -60,7 +61,7 @@ class DefaultController extends AbstractController
     public function index(Unifiedorder $request)
     {
         $options = [
-            'body' => '测试订单',
+            'body' => '统一下单测试订单',
             'notify_url' => 'http://localhost',
             'out_trade_no' => uniqid(),
             'total_fee' => 1,
@@ -76,5 +77,5 @@ class DefaultController extends AbstractController
 查看所有可用服务
 
 ```bash
-$ php bin/console debug:container Siganushka\ApiFactory\Wxpay
+$ php bin/console debug:container Siganushka\\ApiFactory\\Wxpay
 ```
