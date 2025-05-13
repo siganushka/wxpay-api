@@ -41,11 +41,11 @@ $ composer require siganushka/wxpay-api siganushka/api-factory-bundle
 
 siganushka_api_factory:
     wxpay:
-        appid: your_appid
-        mchid: your_mchid
-        mchkey: your_mchkey
-        mch_client_cert: null
-        mch_client_key: null
+        appid: your_appid                   # 微信支付绑定的应用帐号
+        mchid: your_mchid                   # 微信支付商户号
+        mchkey: your_mchkey                 # 微信支付商户密钥
+        mch_client_cert: your_client_cert   # 微信支付商户客户端证书 Cert（选填）
+        mch_client_key: your_client_key     # 微信支付商户客户端证书 Key（选填）
 ```
 
 使用
