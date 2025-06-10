@@ -76,8 +76,8 @@ final class OptionSet
     {
         $resolver
             ->define(__FUNCTION__)
-            ->default(static::SIGN_TYPE_MD5)
-            ->allowedValues(static::SIGN_TYPE_MD5, static::SIGN_TYPE_SHA256)
+            ->default(self::SIGN_TYPE_MD5)
+            ->allowedValues(self::SIGN_TYPE_MD5, self::SIGN_TYPE_SHA256)
         ;
     }
 
