@@ -18,8 +18,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 abstract class AbstractWxpayRequest extends AbstractRequest
 {
-    protected SerializerInterface $serializer;
-    protected SignatureUtils $signatureUtils;
+    protected readonly SerializerInterface $serializer;
+    protected readonly SignatureUtils $signatureUtils;
 
     public function __construct(?HttpClientInterface $httpClient = null, ?SerializerInterface $serializer = null, ?SignatureUtils $signatureUtils = null)
     {

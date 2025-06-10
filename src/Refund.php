@@ -9,13 +9,8 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_4
- */
 class Refund extends AbstractWxpayRequest
 {
-    public const URL = 'https://api.mch.weixin.qq.com/secapi/pay/refund';
-
     protected function configureOptions(OptionsResolver $resolver): void
     {
         OptionSet::appid($resolver);
@@ -88,6 +83,9 @@ class Refund extends AbstractWxpayRequest
         ;
     }
 
+    /**
+     * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_4
+     */
     protected function configureRequest(RequestOptions $request, array $options): void
     {
         $body = array_filter([
@@ -114,7 +112,7 @@ class Refund extends AbstractWxpayRequest
 
         $request
             ->setMethod('POST')
-            ->setUrl(static::URL)
+            ->setUrl('https://api.mch.weixin.qq.com/secapi/pay/refund')
             ->setBody($this->serializer->serialize($body, 'xml'))
             ->setLocalCert($options['mch_client_cert'])
             ->setLocalPk($options['mch_client_key'])

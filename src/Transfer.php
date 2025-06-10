@@ -9,13 +9,8 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @see https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2
- */
 class Transfer extends AbstractWxpayRequest
 {
-    public const URL = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers';
-
     protected function configureOptions(OptionsResolver $resolver): void
     {
         OptionSet::appid($resolver);
@@ -95,6 +90,9 @@ class Transfer extends AbstractWxpayRequest
         ;
     }
 
+    /**
+     * @see https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2
+     */
     protected function configureRequest(RequestOptions $request, array $options): void
     {
         $body = array_filter([
@@ -122,7 +120,7 @@ class Transfer extends AbstractWxpayRequest
 
         $request
             ->setMethod('POST')
-            ->setUrl(static::URL)
+            ->setUrl('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers')
             ->setBody($this->serializer->serialize($body, 'xml'))
             ->setLocalCert($options['mch_client_cert'])
             ->setLocalPk($options['mch_client_key'])

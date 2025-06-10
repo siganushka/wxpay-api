@@ -78,7 +78,7 @@ class QueryTest extends TestCase
 
         $requestOptions = $this->request->build($options);
         static::assertSame('POST', $requestOptions->getMethod());
-        static::assertSame(Query::URL, $requestOptions->getUrl());
+        static::assertSame('https://api.mch.weixin.qq.com/pay/orderquery', $requestOptions->getUrl());
 
         /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
@@ -104,7 +104,7 @@ class QueryTest extends TestCase
             'using_slave_url' => true,
         ]);
 
-        static::assertSame(Query::URL2, $requestOptions->getUrl());
+        static::assertSame('https://api2.mch.weixin.qq.com/pay/orderquery', $requestOptions->getUrl());
 
         /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');

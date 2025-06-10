@@ -138,7 +138,7 @@ class UnifiedorderTest extends TestCase
 
         $requestOptions = $this->request->build($options);
         static::assertSame('POST', $requestOptions->getMethod());
-        static::assertSame(Unifiedorder::URL, $requestOptions->getUrl());
+        static::assertSame('https://api.mch.weixin.qq.com/pay/unifiedorder', $requestOptions->getUrl());
 
         /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');
@@ -185,6 +185,8 @@ class UnifiedorderTest extends TestCase
         ]);
 
         $requestOptions = $this->request->build($options);
+
+        static::assertSame('https://api2.mch.weixin.qq.com/pay/unifiedorder', $requestOptions->getUrl());
 
         /** @var array{ sign: string } */
         $body = $this->serializer->deserialize($requestOptions->toArray()['body'], 'string[]', 'xml');

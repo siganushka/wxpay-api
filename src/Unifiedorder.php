@@ -9,14 +9,8 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
- */
 class Unifiedorder extends AbstractWxpayRequest
 {
-    public const URL = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
-    public const URL2 = 'https://api2.mch.weixin.qq.com/pay/unifiedorder';
-
     protected function configureOptions(OptionsResolver $resolver): void
     {
         OptionSet::appid($resolver);
@@ -145,6 +139,9 @@ class Unifiedorder extends AbstractWxpayRequest
         ;
     }
 
+    /**
+     * @see https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
+     */
     protected function configureRequest(RequestOptions $request, array $options): void
     {
         $body = array_filter([
@@ -179,9 +176,13 @@ class Unifiedorder extends AbstractWxpayRequest
             'sign_type' => $options['sign_type'],
         ]);
 
+        $url = $options['using_slave_url']
+            ? 'https://api2.mch.weixin.qq.com/pay/unifiedorder'
+            : 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+
         $request
             ->setMethod('POST')
-            ->setUrl($options['using_slave_url'] ? static::URL2 : static::URL)
+            ->setUrl($url)
             ->setBody($this->serializer->serialize($body, 'xml'))
         ;
     }

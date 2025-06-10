@@ -18,8 +18,8 @@ class NotifyHandler implements ResolverInterface
 {
     use ResolverTrait;
 
-    protected SerializerInterface $serializer;
-    protected SignatureUtils $signatureUtils;
+    protected readonly SerializerInterface $serializer;
+    protected readonly SignatureUtils $signatureUtils;
 
     public function __construct(?SerializerInterface $serializer = null, ?SignatureUtils $signatureUtils = null)
     {

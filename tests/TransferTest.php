@@ -115,7 +115,7 @@ class TransferTest extends TestCase
 
         $requestOptions = $this->request->build($options);
         static::assertSame('POST', $requestOptions->getMethod());
-        static::assertSame(Transfer::URL, $requestOptions->getUrl());
+        static::assertSame('https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers', $requestOptions->getUrl());
         static::assertSame($requestOptions->toArray()['local_cert'], $options['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $options['mch_client_key']);
 

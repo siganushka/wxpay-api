@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Siganushka\ApiFactory\Wxpay;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
-use Symfony\Component\OptionsResolver\OptionConfigurator;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,37 +13,37 @@ final class OptionSet
     public const SIGN_TYPE_SHA256 = 'HMAC-SHA256';
     public const SIGN_TYPE_MD5 = 'MD5';
 
-    public static function appid(OptionsResolver $resolver): OptionConfigurator
+    public static function appid(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('appid')
+        $resolver
+            ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
         ;
     }
 
-    public static function mchid(OptionsResolver $resolver): OptionConfigurator
+    public static function mchid(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('mchid')
+        $resolver
+            ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
         ;
     }
 
-    public static function mchkey(OptionsResolver $resolver): OptionConfigurator
+    public static function mchkey(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('mchkey')
+        $resolver
+            ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
         ;
     }
 
-    public static function mch_client_cert(OptionsResolver $resolver): OptionConfigurator
+    public static function mch_client_cert(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('mch_client_cert')
+        $resolver
+            ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
             ->normalize(function (Options $options, ?string $mchClientCert) {
@@ -57,10 +56,10 @@ final class OptionSet
         ;
     }
 
-    public static function mch_client_key(OptionsResolver $resolver): OptionConfigurator
+    public static function mch_client_key(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('mch_client_key')
+        $resolver
+            ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
             ->normalize(function (Options $options, ?string $mchClientKey) {
@@ -73,46 +72,46 @@ final class OptionSet
         ;
     }
 
-    public static function sign_type(OptionsResolver $resolver): OptionConfigurator
+    public static function sign_type(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('sign_type')
+        $resolver
+            ->define(__FUNCTION__)
             ->default(static::SIGN_TYPE_MD5)
             ->allowedValues(static::SIGN_TYPE_MD5, static::SIGN_TYPE_SHA256)
         ;
     }
 
-    public static function timestamp(OptionsResolver $resolver): OptionConfigurator
+    public static function timestamp(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('timestamp')
+        $resolver
+            ->define(__FUNCTION__)
             ->default((string) time())
             ->allowedTypes('string')
         ;
     }
 
-    public static function noncestr(OptionsResolver $resolver): OptionConfigurator
+    public static function noncestr(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('noncestr')
+        $resolver
+            ->define(__FUNCTION__)
             ->default(bin2hex(random_bytes(16)))
             ->allowedTypes('string')
         ;
     }
 
-    public static function client_ip(OptionsResolver $resolver): OptionConfigurator
+    public static function client_ip(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('client_ip')
+        $resolver
+            ->define(__FUNCTION__)
             ->default($_SERVER['HTTP_X_FORWARDED_FOR'] ?? ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'))
             ->allowedTypes('string')
         ;
     }
 
-    public static function using_slave_url(OptionsResolver $resolver): OptionConfigurator
+    public static function using_slave_url(OptionsResolver $resolver): void
     {
-        return $resolver
-            ->define('using_slave_url')
+        $resolver
+            ->define(__FUNCTION__)
             ->default(false)
             ->allowedTypes('bool')
         ;

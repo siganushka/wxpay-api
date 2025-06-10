@@ -109,7 +109,7 @@ class RefundTest extends TestCase
 
         $requestOptions = $this->request->build($options);
         static::assertSame('POST', $requestOptions->getMethod());
-        static::assertSame(Refund::URL, $requestOptions->getUrl());
+        static::assertSame('https://api.mch.weixin.qq.com/secapi/pay/refund', $requestOptions->getUrl());
         static::assertSame($requestOptions->toArray()['local_cert'], $configuration['mch_client_cert']);
         static::assertSame($requestOptions->toArray()['local_pk'], $configuration['mch_client_key']);
 
