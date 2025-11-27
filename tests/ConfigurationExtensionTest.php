@@ -6,6 +6,7 @@ namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Siganushka\ApiFactory\Wxpay\ConfigurationExtension;
+use Siganushka\ApiFactory\Wxpay\NotifyHandler;
 use Siganushka\ApiFactory\Wxpay\ParameterUtils;
 use Siganushka\ApiFactory\Wxpay\Query;
 use Siganushka\ApiFactory\Wxpay\Refund;
@@ -53,6 +54,7 @@ class ConfigurationExtensionTest extends TestCase
     public function testGetExtendedClasses(): void
     {
         static::assertEquals([
+            NotifyHandler::class,
             Query::class,
             Refund::class,
             Transfer::class,
