@@ -7,6 +7,15 @@ namespace Siganushka\ApiFactory\Wxpay;
 use Siganushka\ApiFactory\AbstractConfiguration;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractConfiguration<array{
+ *  appid: string,
+ *  mchid: string,
+ *  mchkey: string,
+ *  mch_client_cert: string|null,
+ *  mch_client_key: string|null
+ * }>
+ */
 class Configuration extends AbstractConfiguration
 {
     public static function configureOptions(OptionsResolver $resolver): void
