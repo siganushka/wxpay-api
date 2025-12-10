@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Siganushka\ApiFactory\Wxpay\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
@@ -35,9 +36,7 @@ class SignatureUtilsTest extends TestCase
         ]));
     }
 
-    /**
-     * @dataProvider getSignatureProvider
-     */
+    #[DataProvider('getSignatureProvider')]
     public function testGenerate(string $key, array $data, string $signType): void
     {
         $options = [
@@ -57,38 +56,36 @@ class SignatureUtilsTest extends TestCase
         $this->signatureUtils->generate(['foo' => 'hello']);
     }
 
-    public function getSignatureProvider(): array
+    public static function getSignatureProvider(): iterable
     {
-        return [
+        yield [
+            'foo_key',
+            ['foo' => 'hello'],
+            'MD5',
+        ];
+        yield [
+            'bar_key',
+            ['bar' => 'world'],
+            'HMAC-SHA256',
+        ];
+        yield [
+            'baz_key',
+            ['bar' => 'hello world'],
+            'MD5',
+        ];
+        yield [
+            'c2dd2e64a672e5e1b82c019be848c2df',
             [
-                'foo_key',
-                ['foo' => 'hello'],
-                'MD5',
+                'return_code' => 'SUCCESS',
+                'return_msg' => 'OK',
+                'result_code' => 'SUCCESS',
+                'mch_id' => '1619665394',
+                'appid' => 'wx85bbb9f0e9460321',
+                'nonce_str' => 'iwMmaj4dS9slhxIH',
+                'prepay_id' => 'wx21170426533555ff1203597cc057e00000',
+                'trade_type' => 'JSAPI',
             ],
-            [
-                'bar_key',
-                ['bar' => 'world'],
-                'HMAC-SHA256',
-            ],
-            [
-                'baz_key',
-                ['bar' => 'hello world'],
-                'MD5',
-            ],
-            [
-                'c2dd2e64a672e5e1b82c019be848c2df',
-                [
-                    'return_code' => 'SUCCESS',
-                    'return_msg' => 'OK',
-                    'result_code' => 'SUCCESS',
-                    'mch_id' => '1619665394',
-                    'appid' => 'wx85bbb9f0e9460321',
-                    'nonce_str' => 'iwMmaj4dS9slhxIH',
-                    'prepay_id' => 'wx21170426533555ff1203597cc057e00000',
-                    'trade_type' => 'JSAPI',
-                ],
-                'MD5',
-            ],
+            'MD5',
         ];
     }
 }
