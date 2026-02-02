@@ -30,7 +30,7 @@ class Query extends AbstractWxpayRequest
             ->define('out_trade_no')
             ->default(null)
             ->allowedTypes('null', 'string')
-            ->normalize(function (Options $options, ?string $outTradeNo) {
+            ->normalize(static function (Options $options, ?string $outTradeNo) {
                 if (null === $options['transaction_id'] && null === $outTradeNo) {
                     throw new MissingOptionsException('The required option "transaction_id" or "out_trade_no" is missing.');
                 }
@@ -52,7 +52,7 @@ class Query extends AbstractWxpayRequest
             'out_trade_no' => $options['out_trade_no'],
             'nonce_str' => $options['noncestr'],
             'sign_type' => $options['sign_type'],
-        ], fn ($value) => null !== $value);
+        ], static fn ($value) => null !== $value);
 
         // Generate signature
         $body['sign'] = $this->signatureUtils->generate($body, [

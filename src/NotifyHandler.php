@@ -46,7 +46,7 @@ class NotifyHandler implements ResolverInterface
         $resolved = $this->resolve($options);
 
         $signature = $data['sign'] ?? '';
-        $signatureData = array_filter($data, fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
+        $signatureData = array_filter($data, static fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
 
         if (!$this->signatureUtils->verify($signature, $signatureData, $resolved)) {
             throw new \RuntimeException('Invalid signature.');
@@ -70,7 +70,7 @@ class NotifyHandler implements ResolverInterface
         $data = array_filter([
             'return_code' => $code,
             'return_msg' => $message,
-        ], fn ($value) => \is_string($value));
+        ], static fn ($value) => \is_string($value));
 
         $content = $this->serializer->serialize($data, 'xml', [
             'xml_root_node_name' => 'xml',

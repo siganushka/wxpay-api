@@ -46,7 +46,7 @@ final class OptionSet
             ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
-            ->normalize(function (Options $options, ?string $mchClientCert) {
+            ->normalize(static function (Options $options, ?string $mchClientCert) {
                 if (null !== $mchClientCert && !is_file($mchClientCert)) {
                     throw new InvalidOptionsException(\sprintf('The option "mch_client_cert" with file "%s" does not exists.', $mchClientCert));
                 }
@@ -62,7 +62,7 @@ final class OptionSet
             ->define(__FUNCTION__)
             ->required()
             ->allowedTypes('string')
-            ->normalize(function (Options $options, ?string $mchClientKey) {
+            ->normalize(static function (Options $options, ?string $mchClientKey) {
                 if (null !== $mchClientKey && !is_file($mchClientKey)) {
                     throw new InvalidOptionsException(\sprintf('The option "mch_client_key" with file "%s" does not exists.', $mchClientKey));
                 }

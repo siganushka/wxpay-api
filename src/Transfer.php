@@ -50,7 +50,7 @@ class Transfer extends AbstractWxpayRequest
             ->define('re_user_name')
             ->default(null)
             ->allowedTypes('null', 'string')
-            ->normalize(function (Options $options, ?string $reUserName) {
+            ->normalize(static function (Options $options, ?string $reUserName) {
                 if ('FORCE_CHECK' === $options['check_name'] && null === $reUserName) {
                     throw new MissingOptionsException('The required option "re_user_name" is missing (when "check_name" option is set to "FORCE_CHECK").');
                 }
@@ -110,7 +110,7 @@ class Transfer extends AbstractWxpayRequest
             'scene' => $options['scene'],
             'brand_id' => $options['brand_id'],
             'finder_template_id' => $options['finder_template_id'],
-        ], fn ($value) => null !== $value);
+        ], static fn ($value) => null !== $value);
 
         // Generate signature
         $body['sign'] = $this->signatureUtils->generate($body, [

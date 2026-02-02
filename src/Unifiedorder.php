@@ -67,14 +67,14 @@ class Unifiedorder extends AbstractWxpayRequest
             ->define('time_start')
             ->default(null)
             ->allowedTypes('null', \DateTimeInterface::class)
-            ->normalize(fn (Options $options, ?\DateTimeInterface $timeStart) => null === $timeStart ? null : $timeStart->format('YmdHis'))
+            ->normalize(static fn (Options $options, ?\DateTimeInterface $timeStart) => null === $timeStart ? null : $timeStart->format('YmdHis'))
         ;
 
         $resolver
             ->define('time_expire')
             ->default(null)
             ->allowedTypes('null', \DateTimeInterface::class)
-            ->normalize(fn (Options $options, ?\DateTimeInterface $timeExpire) => null === $timeExpire ? null : $timeExpire->format('YmdHis'))
+            ->normalize(static fn (Options $options, ?\DateTimeInterface $timeExpire) => null === $timeExpire ? null : $timeExpire->format('YmdHis'))
         ;
 
         $resolver
@@ -111,7 +111,7 @@ class Unifiedorder extends AbstractWxpayRequest
             ->define('openid')
             ->default(null)
             ->allowedTypes('null', 'string')
-            ->normalize(function (Options $options, ?string $openid) {
+            ->normalize(static function (Options $options, ?string $openid) {
                 if ('JSAPI' === $options['trade_type'] && null === $openid) {
                     throw new MissingOptionsException('The required option "openid" is missing (when "trade_type" option is set to "JSAPI").');
                 }
@@ -168,7 +168,7 @@ class Unifiedorder extends AbstractWxpayRequest
             'receipt' => $options['receipt'],
             'profit_sharing' => $options['profit_sharing'],
             'scene_info' => $options['scene_info'],
-        ], fn ($value) => null !== $value);
+        ], static fn ($value) => null !== $value);
 
         // Generate signature
         $body['sign'] = $this->signatureUtils->generate($body, [
