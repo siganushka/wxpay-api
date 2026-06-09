@@ -60,6 +60,26 @@ class NotifyHandler implements ResolverInterface
         return $data;
     }
 
+    public function decryptReqInfo(string $reqInfo, array $options = []): array
+    {
+        $resolved = $this->resolve($options);
+
+        $reqInfo = base64_decode($reqInfo);
+        $result = openssl_decrypt($reqInfo, 'AES-256-ECB', md5($resolved['mchkey']), \OPENSSL_RAW_DATA);
+        if (false === $result) {
+            throw new \RuntimeException('Unable to decrypt value.');
+        }
+
+        try {
+            /** @var array<string, string> */
+            $data = $this->serializer->deserialize($result, 'string[]', 'xml');
+        } catch (\Throwable $th) {
+            throw new \RuntimeException('Unable to decrypt value.', 0, $th);
+        }
+
+        return $data;
+    }
+
     public function success(?string $message = null): Response
     {
         return $this->createXmlResponse('SUCCESS', $message);
