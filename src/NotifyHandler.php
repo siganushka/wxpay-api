@@ -32,8 +32,10 @@ class NotifyHandler implements ResolverInterface
      * @param Request $request 微信支付结果通知请求对象
      * @param array   $options 自定义选项
      *
-     * @return array             微信支付结果通知数据
-     * @throws \RuntimeException 支付通知请求数据无效/签名验证失败
+     * @return array 微信支付结果通知数据
+     *
+     * @throws \RuntimeException         支付通知请求数据无效
+     * @throws InvalidSignatureException 签名验证失败
      */
     public function handle(Request $request, array $options = []): array
     {
