@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Siganushka\ApiFactory\Wxpay\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Siganushka\ApiFactory\Wxpay\Exception\InvalidSignatureException;
 use Siganushka\ApiFactory\Wxpay\NotifyHandler;
 use Siganushka\ApiFactory\Wxpay\SignatureUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,8 +78,8 @@ class NotifyHandlerTest extends TestCase
 
     public function testHandleWithInvalidSignatureException(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Invalid signature');
+        $this->expectException(InvalidSignatureException::class);
+        $this->expectExceptionMessage('Invalid signature.');
 
         $notifyData = [
             'foo' => 'bar',

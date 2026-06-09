@@ -6,6 +6,7 @@ namespace Siganushka\ApiFactory\Wxpay;
 
 use Siganushka\ApiFactory\ResolverInterface;
 use Siganushka\ApiFactory\ResolverTrait;
+use Siganushka\ApiFactory\Wxpay\Exception\InvalidSignatureException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -49,7 +50,7 @@ class NotifyHandler implements ResolverInterface
         $signatureData = array_filter($data, static fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
 
         if (!$this->signatureUtils->verify($signature, $signatureData, $resolved)) {
-            throw new \RuntimeException('Invalid signature.');
+            throw new InvalidSignatureException($signature, $data);
         }
 
         return $data;
