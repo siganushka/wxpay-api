@@ -29,15 +29,16 @@ class NotifyHandler implements ResolverInterface
     }
 
     /**
-     * @param Request $request 微信支付结果通知请求对象
-     * @param array   $options 自定义选项
+     * @param Request $request         微信支付结果通知请求对象
+     * @param array   $options         自定义选项
+     * @param bool    $verifySignature 验证签名
      *
      * @return array 微信支付结果通知数据
      *
      * @throws \RuntimeException         支付通知请求数据无效
      * @throws InvalidSignatureException 签名验证失败
      */
-    public function handle(Request $request, array $options = []): array
+    public function handle(Request $request, array $options = [], bool $verifySignature = true): array
     {
         try {
             /** @var array<string, string> */
@@ -46,13 +47,14 @@ class NotifyHandler implements ResolverInterface
             throw new \RuntimeException('Invalid Request.', 0, $th);
         }
 
-        $resolved = $this->resolve($options);
+        if ($verifySignature) {
+            $signature = $data['sign'] ?? '';
+            $signatureData = array_filter($data, static fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
 
-        $signature = $data['sign'] ?? '';
-        $signatureData = array_filter($data, static fn ($key) => 'sign' !== $key, \ARRAY_FILTER_USE_KEY);
-
-        if (!$this->signatureUtils->verify($signature, $signatureData, $resolved)) {
-            throw new InvalidSignatureException($signature, $data);
+            $resolved = $this->resolve($options);
+            if (!$this->signatureUtils->verify($signature, $signatureData, $resolved)) {
+                throw new InvalidSignatureException($signature, $data);
+            }
         }
 
         return $data;
