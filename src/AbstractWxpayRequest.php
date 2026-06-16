@@ -39,19 +39,19 @@ abstract class AbstractWxpayRequest extends AbstractRequest
          *  err_code_des?: string
          * }
          */
-        $result = $this->serializer->deserialize($response->getContent(), 'string[]', 'xml');
+        $data = $this->serializer->deserialize($response->getContent(), 'string[]', 'xml');
 
-        $returnCode = $result['return_code'] ?? '';
-        $resultCode = $result['result_code'] ?? '';
+        $returnCode = $data['return_code'] ?? '';
+        $resultCode = $data['result_code'] ?? '';
 
         if ('FAIL' === $returnCode) {
-            throw new ParseResponseException($response, $result['return_msg'] ?? '');
+            throw new ParseResponseException($response, $data['return_msg'] ?? '', responseData: $data);
         }
 
         if ('FAIL' === $resultCode) {
-            throw new ParseResponseException($response, $result['err_code_des'] ?? '');
+            throw new ParseResponseException($response, $data['err_code_des'] ?? '', responseData: $data);
         }
 
-        return $result;
+        return $data;
     }
 }
