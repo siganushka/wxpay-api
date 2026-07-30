@@ -17,9 +17,6 @@
         "symfony/http-foundation": "^7.4|^8.0",
         "symfony/serializer": "^7.4|^8.0"
     },
-    "require-dev": {
-        "symfony/error-handler": "^7.4|^8.0"
-    },
     "autoload": {
         "psr-4": {
             "Siganushka\\ApiFactory\\Wxpay\\": "src/"
