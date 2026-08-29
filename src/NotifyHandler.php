@@ -95,7 +95,7 @@ class NotifyHandler implements ResolverInterface
         $data = array_filter([
             'return_code' => $code,
             'return_msg' => $message,
-        ], static fn ($value) => \is_string($value));
+        ], static fn ($value) => null !== $value);
 
         $content = $this->serializer->serialize($data, 'xml', [
             'xml_root_node_name' => 'xml',
